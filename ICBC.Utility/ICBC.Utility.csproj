@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="NLogger\Logger.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DotNet.NLog.NetCore" Version="2.1.2" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="2.1.1" />
+  </ItemGroup>
+
+</Project>

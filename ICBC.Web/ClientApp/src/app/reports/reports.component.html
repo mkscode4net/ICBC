@@ -1,0 +1,19 @@
+<p class="rptheader"><b>Excel Template</b></p>
+
+<table class='table' spacing="0">
+  <thead>
+    <tr>
+      <th></th>
+      <th>Report File Name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let rptFile of arrFileNames; let i = index">
+      <td>{{i + 1}}</td>
+      <td ngbTooltip="Click here to view the report!">
+        <a [routerLink]="['/reportViewer', rptFile]">{{rptFile}}</a>
+
+      </td>
+    </tr>
+  </tbody>
+</table>

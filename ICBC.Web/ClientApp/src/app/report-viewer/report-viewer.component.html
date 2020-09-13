@@ -1,0 +1,80 @@
+<p class="rptheader">Report Name: <b>{{fileName.toUpperCase()}}</b></p>
+<table class='table' spacing="0">
+  <thead>
+    <tr>
+      <th></th>
+      <th></th>
+      <th>References</th>
+      <th>
+        <table>
+          <tr><td></td></tr>
+          <tr><td>Gross carrying amount</td></tr>
+          <tr><td>Annex V.Part 1.34, Part 2.271, 275</td></tr>
+          <tr><td>010</td></tr>
+        </table>
+
+      </th>
+      <th>
+        <table>
+          <tr><td></td></tr>
+          <tr><td>Of which: held for trading or trading</td></tr>
+          <tr><td>Annex V.Part 1.15(a), Part 2.273</td></tr>
+          <tr><td>011</td></tr>
+        </table>
+
+      </th>
+      <th>
+        <table>
+          <tr><td></td></tr>
+          <tr><td>of which: financial assets subject to impairment</td></tr>
+          <tr><td>Annex V.Part 2.273</td></tr>
+          <tr><td>012</td></tr>
+        </table>
+      </th>
+      <th>
+        <table>
+          <tr><td></td></tr>
+          <tr><td>Of which: debt forbearance</td></tr>
+          <tr><td>Annex V.Part 2.275</td></tr>
+          <tr><td>022</td></tr>
+        </table>
+      </th>
+      <th>
+        <table>
+          <tr><td></td></tr>
+          <tr><td>Of which: non-perfoming</td></tr>
+          <tr><td>Annex V.Part 2.275</td></tr>
+          <tr><td>025</td></tr>
+        </table>
+      </th>
+      <th>
+        <table>
+          <tr><td>Accumulated impairment</td></tr>
+          <tr><td>Annex V.Part 2.274</td></tr>
+          <tr><td>031</td></tr>
+        </table>
+      </th>
+      <th>
+        <table>
+          <tr><td>Accumulated negative changes in fair value due to credit risk on non-performing exposures</td></tr>
+          <tr><td>Annex V.Part 2.274</td></tr>
+          <tr><td>040</td></tr>
+        </table>
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let row of report.Data; let i = index">
+      <td class="col1">{{row.B}}</td>
+      <td>{{row.C}}</td>
+      <td>{{row.D}}</td>
+      <td>{{row.E}}</td>
+      <td>{{row.F}}</td>
+      <td>{{row.G}}</td>
+      <td>{{row.H}}</td>
+      <td>{{row.I}}</td>
+      <td>{{row.J}}</td>
+      <td>{{row.K}}</td>
+    </tr>
+  </tbody>
+</table>

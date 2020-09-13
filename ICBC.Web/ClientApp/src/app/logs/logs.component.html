@@ -1,0 +1,17 @@
+<p class="rptheader"><b>Logs</b></p>
+<table class='table' spacing="0">
+  <thead>
+    <tr>
+      <th></th>
+      <th>Log File Name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let rptFile of arrFileNames; let i = index">
+      <td>{{i + 1}}</td>
+      <td>
+          {{rptFile}}
+      </td>
+    </tr>
+  </tbody>
+</table>

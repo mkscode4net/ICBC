@@ -1,0 +1,43 @@
+
+.table {
+  margin: 0px;
+  margin-top: -10px;
+  border-collapse: collapse;
+}
+
+  .table table tr td {
+    margin: 15px;
+    border-collapse: collapse;
+    border-bottom: 1px solid #808080;
+  }
+
+  .table > tbody > tr > td {
+    border: 1px solid #808080;
+    padding: 5px;
+    min-width: 100px;
+    text-align: left;
+  }
+
+  .table > thead > tr > th {
+    border: 1px solid #808080;
+    padding: 5px;
+    min-width: 100px;
+    text-align: left;
+  }
+
+th, .col1 {
+  background-color: #ddd;
+}
+
+.rptheader {
+  background-color: #ddd;
+  border: 1px solid #808080;
+  padding: 15px;
+  min-width: 100px;
+  text-align: left;
+  margin-top: 5px;
+}
+
+p {
+  margin: 0 0 -2px;
+}
