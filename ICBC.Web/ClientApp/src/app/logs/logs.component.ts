@@ -4,7 +4,7 @@ import { ExcelReportService } from '../services/excel-report.service'
 @Component({
   selector: 'app-logs',
   templateUrl: './logs.component.html',
-  styleUrls: ['./logs.component.css'],
+ // styleUrls: ['./logs.component.css'],
   providers: [ExcelReportService]
 
 })

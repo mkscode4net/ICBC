@@ -5,7 +5,7 @@ import { retry } from 'rxjs/operators';
 @Component({
   selector: 'app-reports',
   templateUrl: './reports.component.html',
-  styleUrls: ['./reports.component.css'],
+  //styleUrls: ['./reports.component.css'],
   providers:[ExcelReportService]
 })
 
