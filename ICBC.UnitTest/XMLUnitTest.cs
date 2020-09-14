@@ -7,7 +7,7 @@ using Serializer = ICBC.Utility.Serializer;
 
 namespace ICBC.UnitTest
 {
-    public class UnitTest1
+    public class XMLUnitTest
     {
         private const string firstSheetName = "F 20.04";
         private const string secondSheetName = "Final";
