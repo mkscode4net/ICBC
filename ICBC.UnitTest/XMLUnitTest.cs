@@ -22,7 +22,7 @@ namespace ICBC.UnitTest
             var objXmlReport = new XmlReport(new LoggerManager());
             var pathToSave = Path.Combine(Directory.GetCurrentDirectory(), ExcelConstants.XMLFolderName);
             var xmlFilePath = System.IO.Path.GetFullPath("Data\\SampleXml\\Test.xml");
-            var newReportfilename = CreateExcelReport();
+            var newReportfilename = CreateExcelReport(xmlFilePath);
             Assert.False(string.IsNullOrWhiteSpace(newReportfilename));
         }
 
@@ -36,7 +36,7 @@ namespace ICBC.UnitTest
 
             var pathToSave = Path.Combine(Directory.GetCurrentDirectory(), ExcelConstants.XMLFolderName);
             var xmlFilePath = System.IO.Path.GetFullPath("Data\\SampleXml\\Test.xml");
-            var newReportfilename = CreateExcelReport();
+            var newReportfilename = CreateExcelReport(xmlFilePath);
             string filePath = System.IO.Path.GetFullPath(ExcelConstants.ReportFolderName + "\\" + newReportfilename);
             var reportJsonString = objXmlReport.ReadExcelFile(filePath, firstSheetName);
             Assert.False(string.IsNullOrWhiteSpace(reportJsonString));
@@ -52,7 +52,7 @@ namespace ICBC.UnitTest
 
             var pathToSave = Path.Combine(Directory.GetCurrentDirectory(), ExcelConstants.XMLFolderName);
             var xmlFilePath = System.IO.Path.GetFullPath("Data\\SampleXml\\Test.xml");
-            var newReportfilename = CreateExcelReport();
+            var newReportfilename = CreateExcelReport(xmlFilePath);
             string filePath = System.IO.Path.GetFullPath(ExcelConstants.ReportFolderName + "\\" + newReportfilename);
             var reportJsonString = objXmlReport.ReadExcelFile(filePath, firstSheetName);
             Assert.False(string.IsNullOrWhiteSpace(reportJsonString));
@@ -61,6 +61,33 @@ namespace ICBC.UnitTest
 
 
         }
+        [Fact]
+        public void Read_Excel_Report_From_Excel_Compare_First_AND_Second_Sheet_DATA()
+        {
+            string excelTemplatefileName = "TestReport.xlsx";
+            var excelfilePath = System.IO.Path.GetFullPath(ExcelConstants.TemplateFolderName + "\\" + excelTemplatefileName);
+            var xsdfilePath = System.IO.Path.GetFullPath(ExcelConstants.XSDFolderName + "\\" + ExcelConstants.XSDFileName);
+            var objXmlReport = new XmlReport(new LoggerManager());
+
+            var pathToSave = Path.Combine(Directory.GetCurrentDirectory(), ExcelConstants.XMLFolderName);
+            var xmlFilePath = System.IO.Path.GetFullPath("Data\\SampleXml\\Test_Original.xml");
+            var newReportfilename = CreateExcelReport(xmlFilePath);
+            string filePath = System.IO.Path.GetFullPath(ExcelConstants.ReportFolderName + "\\" + newReportfilename);
+            var reportJsonString_First = objXmlReport.ReadExcelFile(filePath, firstSheetName);
+            Assert.False(string.IsNullOrWhiteSpace(reportJsonString_First));
+            dynamic jsonObject_FirstSheet = JObject.Parse(reportJsonString_First);
+            var reportJsonString_Second = objXmlReport.ReadExcelFile(filePath, firstSheetName);
+            Assert.False(string.IsNullOrWhiteSpace(reportJsonString_Second));
+            dynamic jsonObject_SecondSheet = JObject.Parse(reportJsonString_Second);
+            Assert.True(jsonObject_SecondSheet.Data[0].E == jsonObject_FirstSheet.Data[0].E);
+            Assert.True(jsonObject_SecondSheet.Data[0].F == jsonObject_FirstSheet.Data[0].F);
+            Assert.True(jsonObject_SecondSheet.Data[0].G == jsonObject_FirstSheet.Data[0].G);
+            Assert.True(jsonObject_SecondSheet.Data[1].E == jsonObject_FirstSheet.Data[1].E);
+            Assert.True(jsonObject_SecondSheet.Data[1].F == jsonObject_FirstSheet.Data[1].F);
+            Assert.True(jsonObject_SecondSheet.Data[1].G == jsonObject_FirstSheet.Data[1].G);
+
+        }
+
 
         [Fact]
         public void Read_Excel_Report_From_Excel_Check_JSON_DATA_Invalid_File_Type()
@@ -106,16 +133,9 @@ namespace ICBC.UnitTest
             string filePath = System.IO.Path.GetFullPath(ExcelConstants.XSDFolderName);
             Assert.True(System.IO.Directory.Exists(filePath));
         }
-        [Fact]
-        public void Excel_Report_Check_XML_Folder()
-        {
-            string filePath = System.IO.Path.GetFullPath(ExcelConstants.XMLFolderName);
-            Assert.True(System.IO.Directory.Exists(filePath));
-        }
+   
 
-
-
-        private string CreateExcelReport()
+        private string CreateExcelReport(string xmlFilePath)
         {
             string excelTemplatefileName = "TestReport.xlsx";
             var excelfilePath = System.IO.Path.GetFullPath(ExcelConstants.TemplateFolderName + "\\" + excelTemplatefileName);
@@ -125,7 +145,7 @@ namespace ICBC.UnitTest
 
             var objXmlReport = new XmlReport(new LoggerManager());
             var pathToSave = Path.Combine(Directory.GetCurrentDirectory(), ExcelConstants.XMLFolderName);
-            var xmlFilePath = System.IO.Path.GetFullPath("Data\\SampleXml\\Test.xml");
+          //  var xmlFilePath = System.IO.Path.GetFullPath("Data\\SampleXml\\Test.xml");
 
             if (Serializer.IsValidXmlFile(xmlFilePath, xsdfilePath))
             {

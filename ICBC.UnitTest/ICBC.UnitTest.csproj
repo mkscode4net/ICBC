@@ -42,6 +42,9 @@
     <None Update="Data\SampleXml\TestReport.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Data\SampleXml\Test_Original.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="ExcelTemplate\Test.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
