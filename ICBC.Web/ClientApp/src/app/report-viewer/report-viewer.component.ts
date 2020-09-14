@@ -14,7 +14,7 @@ import { AppSettings } from '../settings/appSettings';
 
 export class ReportViewerComponent implements OnInit {
   private fileName: string;
-  public report: Report = { Data: [] };
+  public report: Report = { Data: [], Message:"", MessageType:"" };
   constructor(private route: ActivatedRoute, private excelReportService: ExcelReportService) {
     this.fileName = route.snapshot.params.file;
     console.log(this.fileName);
