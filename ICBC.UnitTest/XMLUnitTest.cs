@@ -145,8 +145,6 @@ namespace ICBC.UnitTest
 
             var objXmlReport = new XmlReport(new LoggerManager());
             var pathToSave = Path.Combine(Directory.GetCurrentDirectory(), ExcelConstants.XMLFolderName);
-          //  var xmlFilePath = System.IO.Path.GetFullPath("Data\\SampleXml\\Test.xml");
-
             if (Serializer.IsValidXmlFile(xmlFilePath, xsdfilePath))
             {
                 Serializer ser = new Serializer();
