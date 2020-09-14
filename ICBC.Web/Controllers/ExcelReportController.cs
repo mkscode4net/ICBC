@@ -68,7 +68,7 @@ namespace ICBC.Web.Controllers
         [HttpGet]
         public IActionResult GetReport(string excelFileName, string sheetName)
         {
-            _logger.LogInfo($"excelFileName: {excelFileName}");
+            _logger.LogInfo($"GetReport: excelFileName: {excelFileName}, sheetName={sheetName}");
             string filePath = System.IO.Path.GetFullPath(ExcelConstants.ReportFolderName + "\\" + excelFileName);
             var data = objXmlReport.ReadExcelFile(filePath, sheetName);
             return Ok(data);

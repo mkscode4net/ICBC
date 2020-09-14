@@ -24,73 +24,96 @@ namespace ICBC.BL.XmlReport
         {
             Logger.LogInfo($"ReadExcelFile: filename={fileName}, sheetname={sheetName}");
             JObject o = new JObject();
+
             if (fileName.EndsWith(".xlsx", StringComparison.CurrentCultureIgnoreCase))
             {
 
-
-              
-                JArray arrayRows = new JArray();
-                try
+                if (System.IO.File.Exists(fileName))
                 {
-                    //Lets open the existing excel file and read through its content . Open the excel using openxml sdk
-                    using (SpreadsheetDocument doc = SpreadsheetDocument.Open(fileName, false))
+                    JArray arrayRows = new JArray();
+                    try
                     {
-                        //create the object for workbook part  
-                        WorkbookPart workbookPart = doc.WorkbookPart;
-                        Sheets thesheetcollection = workbookPart.Workbook.GetFirstChild<Sheets>();
-                        Sheet thesheet = (Sheet)thesheetcollection.Where(sh => (sh as Sheet).Name.Equals(sheetName)).FirstOrDefault();
-                        //using for each loop to get the sheet from the sheetcollection  
-
-                        //statement to get the worksheet object by using the sheet id  
-                        Worksheet theWorksheet = ((WorksheetPart)workbookPart.GetPartById(thesheet.Id)).Worksheet;
-
-                        SheetData thesheetdata = theWorksheet.GetFirstChild<SheetData>();
-                        //var rows = worksheetPart.Worksheet.GetFirstChild<SheetData>().Elements<Row>().Skip(ExcelConstants.ReportHeaderLastRowIndex);
-                        foreach (Row thecurrentrow in thesheetdata.Skip(ExcelConstants.ReportHeaderLastRowIndex))
+                        using (SpreadsheetDocument doc = SpreadsheetDocument.Open(fileName, false))
                         {
-                            JObject ocell = new JObject();
-                            foreach (Cell thecurrentcell in thecurrentrow)
+                            //create the object for workbook part  
+                            WorkbookPart workbookPart = doc.WorkbookPart;
+                            Sheets thesheetcollection = workbookPart.Workbook.GetFirstChild<Sheets>();
+                            Sheet thesheet = (Sheet)thesheetcollection.Where(sh => (sh as Sheet).Name.Equals(sheetName)).FirstOrDefault();
+
+                            //statement to get the worksheet object by using the sheet id  
+                            Worksheet theWorksheet = ((WorksheetPart)workbookPart.GetPartById(thesheet.Id)).Worksheet;
+                            if (theWorksheet != null)
                             {
-                                string currentcellvalue = string.Empty;
-                                if (thecurrentcell.DataType != null && thecurrentcell.DataType == CellValues.SharedString)
+                                SheetData thesheetdata = theWorksheet.GetFirstChild<SheetData>();
+                                if (thesheetdata != null)
                                 {
-                                    int id;
-                                    if (Int32.TryParse(thecurrentcell.InnerText, out id))
+
+
+                                    foreach (Row thecurrentrow in thesheetdata.Skip(ExcelConstants.ReportHeaderLastRowIndex))
                                     {
-                                        SharedStringItem item = workbookPart.SharedStringTablePart.SharedStringTable.Elements<SharedStringItem>().ElementAt(id);
-                                        if (item.Text != null)
+                                        JObject ocell = new JObject();
+                                        foreach (Cell thecurrentcell in thecurrentrow)
                                         {
-                                            ocell[string.Concat(thecurrentcell.CellReference.Value.Reverse().Skip(thecurrentrow.RowIndex.ToString().Length).Reverse())] = item.Text.Text;
+                                            string currentcellvalue = string.Empty;
+                                            if (thecurrentcell.DataType != null && thecurrentcell.DataType == CellValues.SharedString)
+                                            {
+                                                int id;
+                                                if (Int32.TryParse(thecurrentcell.InnerText, out id))
+                                                {
+                                                    SharedStringItem item = workbookPart.SharedStringTablePart.SharedStringTable.Elements<SharedStringItem>().ElementAt(id);
+                                                    if (item.Text != null)
+                                                    {
+                                                        ocell[string.Concat(thecurrentcell.CellReference.Value.Reverse().Skip(thecurrentrow.RowIndex.ToString().Length).Reverse())] = item.Text.Text;
+                                                    }
+                                                    else if (item.InnerText != null)
+                                                    {
+                                                        ocell[string.Concat(thecurrentcell.CellReference.Value.Reverse().Skip(thecurrentrow.RowIndex.ToString().Length).Reverse())] = item.InnerText;
+                                                    }
+                                                    else if (item.InnerXml != null)
+                                                    {
+                                                        ocell[string.Concat(thecurrentcell.CellReference.Value.Reverse().Skip(thecurrentrow.RowIndex.ToString().Length).Reverse())] = item.InnerXml;
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                ocell[string.Concat(thecurrentcell.CellReference.Value.Reverse().Skip(thecurrentrow.RowIndex.ToString().Length).Reverse())] = thecurrentcell.InnerText;
+                                            }
                                         }
-                                        else if (item.InnerText != null)
-                                        {
-                                            ocell[string.Concat(thecurrentcell.CellReference.Value.Reverse().Skip(thecurrentrow.RowIndex.ToString().Length).Reverse())] = item.InnerText;
-                                        }
-                                        else if (item.InnerXml != null)
-                                        {
-                                            ocell[string.Concat(thecurrentcell.CellReference.Value.Reverse().Skip(thecurrentrow.RowIndex.ToString().Length).Reverse())] = item.InnerXml;
-                                        }
+
+                                        arrayRows.Add(ocell);
                                     }
                                 }
                                 else
                                 {
-                                    ocell[string.Concat(thecurrentcell.CellReference.Value.Reverse().Skip(thecurrentrow.RowIndex.ToString().Length).Reverse())] = thecurrentcell.InnerText;
+                                    o["MessageType"] = "Error";
+                                    o["Message"] = "Error";
+                                    Logger.LogError("ReadExcelFile: thesheetdata is null : Error");
                                 }
                             }
-
-                            arrayRows.Add(ocell);
+                            else
+                            {
+                                o["MessageType"] = "Error";
+                                o["Message"] = "Error";
+                                Logger.LogError("ReadExcelFile: theWorksheet is null : Error");
+                            }
                         }
-
+                        o["Data"] = arrayRows;
+                        o["MessageType"] = "Success";
+                        o["Message"] = "";
                     }
-                    o["Data"] = arrayRows;
-                    o["MessageType"] = "Success";
-                    o["Message"] = "";
+                    catch (Exception ex)
+                    {
+                        o["MessageType"] = "Error";
+                        o["Message"] = ex.Message;
+                        Logger.LogError("ReadExcelFile: " + ex.ToString());
+                    }
                 }
-                catch (Exception ex)
+                else
                 {
                     o["MessageType"] = "Error";
-                    o["Message"] = ex.Message;
-                    Logger.LogError("ReadExcelFile: " + ex.ToString());
+                    o["Message"] = "File not found";
+                    Logger.LogError("ReadExcelFile: File not found error");
                 }
             }
             else
