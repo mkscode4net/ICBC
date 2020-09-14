@@ -22,6 +22,7 @@ namespace ICBC.BL.XmlReport
 
         public string ReadExcelFile(string fileName, string sheetName)
         {
+            Logger.LogInfo($"ReadExcelFile: filename={fileName}, sheetname={sheetName}");
             JObject o = new JObject();
             JArray arrayRows = new JArray();
             try
@@ -77,10 +78,14 @@ namespace ICBC.BL.XmlReport
 
                 }
                 o["Data"] = arrayRows;
+                o["MessageType"] = "Success";
+                o["Message"] = "";
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                o["MessageType"] = "Error";
+                o["Message"] = ex.Message;
+                Logger.LogError("ReadExcelFile: " + ex.ToString());
             }
             return o.ToString();
         }
@@ -88,22 +93,31 @@ namespace ICBC.BL.XmlReport
 
         public bool UpdateSheet(string templateFilePath, string sheetName, Report report, out string newfileName)
         {
-            bool fileExists = System.IO.File.Exists(templateFilePath);
-            if (!System.IO.Directory.Exists(System.IO.Path.GetFullPath(ExcelConstants.ReportFolderName)))
+            Logger.LogInfo($"UpdateSheet : templateFilePath={templateFilePath}, sheetName={sheetName}");
+            if (System.IO.File.Exists(templateFilePath))
             {
-                System.IO.Directory.CreateDirectory(System.IO.Path.GetFullPath(ExcelConstants.ReportFolderName));
-            }
+                if (!System.IO.Directory.Exists(System.IO.Path.GetFullPath(ExcelConstants.ReportFolderName)))
+                {
+                    System.IO.Directory.CreateDirectory(System.IO.Path.GetFullPath(ExcelConstants.ReportFolderName));
+                }
 
-            newfileName = Path.GetFileName(templateFilePath).Replace(".xlsx", DateTime.Now.ToString("_yyyyMMddTHHmmssfff") + ".xlsx");
-            string reportFilePath = System.IO.Path.GetFullPath(ExcelConstants.ReportFolderName + "\\" + newfileName);
-            System.IO.File.Copy(templateFilePath, reportFilePath);
-            UpdateCell(reportFilePath, report);
-            return true;
+                newfileName = Path.GetFileName(templateFilePath).Replace(".xlsx", DateTime.Now.ToString("_yyyyMMddTHHmmssfff") + ".xlsx");
+                string reportFilePath = System.IO.Path.GetFullPath(ExcelConstants.ReportFolderName + "\\" + newfileName);
+                System.IO.File.Copy(templateFilePath, reportFilePath);
+                UpdateCell(reportFilePath, report);
+                return true;
+            }
+            else
+            {
+                Logger.LogError($"Error UpdateSheet : template file does not exist");
+                newfileName = string.Empty;
+            }
+            return false;
         }
 
         private void UpdateCell(string fileName, Report report)
         {
-
+            Logger.LogInfo($"UpdateCell: filename= {fileName}");
             if (report.ReportVal.Count > 0)
             {
                 using (SpreadsheetDocument spreadSheet = SpreadsheetDocument.Open(fileName, true))
@@ -140,6 +154,14 @@ namespace ICBC.BL.XmlReport
                                     }
                                     report.ReportVal.RemoveRange(0, reportValCount);
                                 }
+                                else
+                                {
+                                    Logger.LogError($"UpdateCell: Invalid item.Text");
+                                }
+                            }
+                            else
+                            {
+                                Logger.LogError($"UpdateCell: Invalid id");
                             }
                             if (report.ReportVal.Count == 0)
                             {
@@ -149,7 +171,15 @@ namespace ICBC.BL.XmlReport
                         // Save the worksheet.
                         worksheetPart.Worksheet.Save();
                     }
+                    else
+                    {
+                        Logger.LogError($"UpdateCell: No worksheetPart found to update");
+                    }
                 }
+            }
+            else
+            {
+                Logger.LogWarn($"UpdateCell: No record found to update");
             }
         }
 
@@ -190,34 +220,60 @@ namespace ICBC.BL.XmlReport
         public List<KeyValuePair<int, string>> GetAllHeaderCellList(SpreadsheetDocument worksheet, string sheetName, uint rowIndex)
         {
             List<KeyValuePair<int, string>> celList = new List<KeyValuePair<int, string>>();
-            WorksheetPart worksheetPart = GetWorksheetPartByName(worksheet, sheetName);
-
-            Row row = GetRow(worksheetPart.Worksheet, rowIndex);
-            foreach (Cell thecurrentcell in row)
+            try
             {
-                string currentcellvalue = string.Empty;
-                if (thecurrentcell.DataType != null)
+
+
+                WorksheetPart worksheetPart = GetWorksheetPartByName(worksheet, sheetName);
+                if (worksheetPart != null)
                 {
-                    if (thecurrentcell.DataType == CellValues.SharedString)
+
+
+                    Row row = GetRow(worksheetPart.Worksheet, rowIndex);
+                    if (row != null)
                     {
-                        int id;
-                        if (Int32.TryParse(thecurrentcell.InnerText, out id))
+
+
+                        foreach (Cell thecurrentcell in row)
                         {
-                            if (id > 0)
+                            string currentcellvalue = string.Empty;
+                            if (thecurrentcell.DataType != null)
                             {
-                                SharedStringItem item = worksheet.WorkbookPart.SharedStringTablePart.SharedStringTable.Elements<SharedStringItem>().ElementAt(id);
-                                int idCellVal;
-                                if (Int32.TryParse(item.Text.Text, out idCellVal))
+                                if (thecurrentcell.DataType == CellValues.SharedString)
                                 {
-                                    if (idCellVal > 0)
+                                    int id;
+                                    if (Int32.TryParse(thecurrentcell.InnerText, out id))
                                     {
-                                        celList.Add(new KeyValuePair<int, string>(idCellVal, thecurrentcell.CellReference.Value.Substring(0, thecurrentcell.CellReference.Value.Length - row.RowIndex.ToString().Length)));
+                                        if (id > 0)
+                                        {
+                                            SharedStringItem item = worksheet.WorkbookPart.SharedStringTablePart.SharedStringTable.Elements<SharedStringItem>().ElementAt(id);
+                                            int idCellVal;
+                                            if (Int32.TryParse(item.Text.Text, out idCellVal))
+                                            {
+                                                if (idCellVal > 0)
+                                                {
+                                                    celList.Add(new KeyValuePair<int, string>(idCellVal, thecurrentcell.CellReference.Value.Substring(0, thecurrentcell.CellReference.Value.Length - row.RowIndex.ToString().Length)));
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
                         }
                     }
+                    else
+                    {
+                        Logger.LogError($"GetAllHeaderCellList: No Row found");
+                    }
                 }
+                else
+                {
+                    Logger.LogError($"GetAllHeaderCellList: No worksheetPart found");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"GetAllHeaderCellList: Error" + ex.ToString());
             }
             return celList;
         }
