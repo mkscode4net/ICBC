@@ -23,7 +23,7 @@ namespace ICBC.Web.Controllers
             objXmlReport = new XmlReport(_logger);
         }
 
-       
+
         [Route("[action]")]
         [HttpGet]
         public IActionResult GetReportFiles()
@@ -63,7 +63,7 @@ namespace ICBC.Web.Controllers
             return string.Empty;
         }
 
-      
+
         [Route("[action]/{excelFileName}/{sheetName}")]
         [HttpGet]
         public IActionResult GetReport(string excelFileName, string sheetName)
@@ -106,7 +106,7 @@ namespace ICBC.Web.Controllers
         }
 
 
-       
+
 
         [Route("[action]/{templateFileName}/{sheetName}")]
         [HttpPost, DisableRequestSizeLimit]
@@ -126,54 +126,66 @@ namespace ICBC.Web.Controllers
                     string newReportfilename = string.Empty;
                     var fileName = DateTime.Now.ToString(ExcelConstants.FileNamePrefixFormat) + ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
                     _logger.LogInfo($"XmlFileUpload: Trying to save file {fileName}");
-                    var fullPath = Path.Combine(pathToSave, fileName);
-                    using (var stream = new FileStream(fullPath, FileMode.Create))
+                    if (fileName.EndsWith(".xml", StringComparison.CurrentCultureIgnoreCase))
                     {
-                        file.CopyTo(stream);
-                        _logger.LogInfo($"XmlFileUpload: Successfully copied file {fullPath}");
-                    }
-                    var templateFilePath = System.IO.Path.GetFullPath(ExcelConstants.TemplateFolderName + "\\" + templateFileName);
-                    if (System.IO.File.Exists(templateFilePath))
-                    {
-                        var xsdfilePath = System.IO.Path.GetFullPath(ExcelConstants.XSDFolderName + "\\" + ExcelConstants.XSDFileName);
-                        if (System.IO.File.Exists(xsdfilePath))
+
+
+                        var fullPath = Path.Combine(pathToSave, fileName);
+                        using (var stream = new FileStream(fullPath, FileMode.Create))
                         {
-                            if (Serializer.IsValidXmlFile(fullPath, xsdfilePath))
+                            file.CopyTo(stream);
+                            _logger.LogInfo($"XmlFileUpload: Successfully copied file {fullPath}");
+                        }
+                        var templateFilePath = System.IO.Path.GetFullPath(ExcelConstants.TemplateFolderName + "\\" + templateFileName);
+                        if (System.IO.File.Exists(templateFilePath))
+                        {
+                            var xsdfilePath = System.IO.Path.GetFullPath(ExcelConstants.XSDFolderName + "\\" + ExcelConstants.XSDFileName);
+                            if (System.IO.File.Exists(xsdfilePath))
                             {
-                                _logger.LogInfo($"XmlFileUpload: Trying to create excel report for {fullPath}");
-                                Serializer ser = new Serializer();
-                                string xmlInputData = string.Empty;
-                                xmlInputData = System.IO.File.ReadAllText(fullPath);
-                                var report = ser.Deserialize<Reports>(xmlInputData);
-                                objXmlReport.UpdateSheet(templateFilePath, sheetName, report.Report, out newReportfilename);
-                                _logger.LogInfo($"XmlFileUpload: Successfully created excel report {newReportfilename}");
-                                return Ok(new { FileName = newReportfilename, Message = "Successfully uploaded", Result = "Success" });
+                                if (Serializer.IsValidXmlFile(fullPath, xsdfilePath))
+                                {
+                                    _logger.LogInfo($"XmlFileUpload: Trying to create excel report for {fullPath}");
+                                    Serializer ser = new Serializer();
+                                    string xmlInputData = string.Empty;
+                                    xmlInputData = System.IO.File.ReadAllText(fullPath);
+                                    var report = ser.Deserialize<Reports>(xmlInputData);
+                                    objXmlReport.UpdateSheet(templateFilePath, sheetName, report.Report, out newReportfilename);
+                                    _logger.LogInfo($"XmlFileUpload: Successfully created excel report {newReportfilename}");
+                                    return Ok(new { FileName = newReportfilename, Message = "Successfully uploaded", Result = "Success" });
+                                }
+                                else
+                                {
+                                    _logger.LogError($"XmlFileUpload: No XML validation error");
+                                    return Ok(new { FileName = "Upload Error", Message = "XML validation failed", Result = "UploadError" });
+
+                                }
                             }
                             else
                             {
                                 //error
-                                return Ok(new { FileName = "Upload Error", Message = "XML validation failed", Result = "UploadError" });
+                                _logger.LogError($"XmlFileUpload: No XSD template file found");
+                                return Ok(new { FileName = "Upload Error", Message = "XSD file does not exist", Result = "UploadError" });
 
                             }
                         }
                         else
                         {
-                            //error
-                            return Ok(new { FileName = "Upload Error", Message = "XSD file does not exist", Result = "UploadError" });
+                            _logger.LogError($"XmlFileUpload: No excel template file found");
+                            return Ok(new { FileName = "Upload Error", Message = "Excel template file does not exist", Result = "UploadError" });
 
                         }
                     }
                     else
                     {
-                        //error
-                        return Ok(new { FileName = "Upload Error", Message = "Excel template file does not exist", Result = "UploadError" });
-
+                        _logger.LogError($"XmlFileUpload: No XML file found to upload");
+                        return Ok(new { FileName = "No File Found Error", Message = "No XML File Found", Result = "NoFileFound" });
                     }
                 }
                 else
                 {
                     //error
-                    return Ok(new { FileName = "No File Found Error", Message = "No XML File Found", Result = "NoFileFound" });
+                    _logger.LogError($"XmlFileUpload: No  file found to upload");
+                    return Ok(new { FileName = "No File Found Error", Message = "No File Found", Result = "NoFileFound" });
                 }
             }
             catch (Exception ex)
