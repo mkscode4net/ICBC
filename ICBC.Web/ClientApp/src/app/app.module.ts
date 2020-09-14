@@ -1,6 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, FormBuilder } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 
@@ -14,6 +14,8 @@ import { ExcelTemplateComponent } from './excel-template/excel-template.componen
 import { ReportViewerComponent } from './report-viewer/report-viewer.component';
 import {AppSettings } from './settings/appSettings';
 import { ErrorDialogComponent } from './error-dialog/error-dialog.component'
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MatDialogModule } from '@angular/material';
 
 @NgModule({
   declarations: [
@@ -30,6 +32,8 @@ import { ErrorDialogComponent } from './error-dialog/error-dialog.component'
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
     HttpClientModule,
+    BrowserAnimationsModule,
+    MatDialogModule,
     FormsModule,
     RouterModule.forRoot([
       { path: '', component: HomeComponent, pathMatch: 'full' },
@@ -40,7 +44,8 @@ import { ErrorDialogComponent } from './error-dialog/error-dialog.component'
       { path: 'reportViewer/:file', component: ReportViewerComponent },
     ])
   ],
-  providers: [],
+  providers: [FormBuilder],
+  entryComponents: [ErrorDialogComponent],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

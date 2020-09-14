@@ -75,6 +75,31 @@ namespace ICBC.Web.Controllers
         }
 
 
+        [Route("[action]/{fileName}")]
+        [HttpGet]
+        public IActionResult GetLogFile(string fileName)
+        {
+            System.Text.StringBuilder reportFiles = new System.Text.StringBuilder();
+            _logger.LogInfo($"GetLogs");
+            try
+            {
+                string logFolder = System.IO.Path.GetFullPath(ExcelConstants.LogFolderName + "\\" + fileName);
+                if (System.IO.File.Exists(logFolder))
+                {
+                    
+                    _logger.LogInfo($"GetLogs: Directory not found creating directory Path: {logFolder}");
+                    return Ok(new { LogFiles = System.IO.File.ReadAllText(logFolder) });
+                }
+                return Ok(new { LogFiles = "No file found." });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInfo($"GetLogs: {ex.ToString()}");
+            }
+
+            return Ok(new { LogFiles = "NO_Log_FOUND" });
+        }
+
         [Route("[action]")]
         [HttpGet]
         public IActionResult GetLogs()

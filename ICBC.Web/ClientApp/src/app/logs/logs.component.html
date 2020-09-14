@@ -10,7 +10,7 @@
     <tr *ngFor="let rptFile of arrFileNames; let i = index">
       <td>{{i + 1}}</td>
       <td>
-          {{rptFile}}
+        <a (click)="getLogFile(rptFile)">  {{rptFile}} </a>
       </td>
     </tr>
   </tbody>

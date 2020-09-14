@@ -19,6 +19,10 @@ export class ExcelReportService {
     return this.httpClient.get<LogFilesModel>('/api/ExcelReport/GetLogs');
   }
 
+  public GetLogFile(fileName): Observable<LogFilesModel> {
+    return this.httpClient.get<LogFilesModel>('/api/ExcelReport/GetLogFile/' + fileName);
+  }
+
   public GetReport(fileName: string, sheetName: string): Observable<Report> {
     return this.httpClient.get<any>('/api/ExcelReport/GetReport/' + fileName + '/' + sheetName);
   }
