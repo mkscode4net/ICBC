@@ -43,10 +43,11 @@ export class LogsComponent implements OnInit {
   }
 
   public getLogFile(fileName: string) {
-    this.excelReportService.GetLogFile(fileName).subscribe(filedata => this.showLog(filedata));
+    this.excelReportService.GetLogFile(fileName).subscribe(filedata => this.showLog(filedata, fileName));
   }
-  showLog(log: LogFilesModel) {
+  showLog(log: LogFilesModel, fileName: string) {
     this.errorentity.description = log.logFiles;
+    this.errorentity.reason = fileName;
     this.errorDialogService.openDialog(this.errorentity);
   }
 

@@ -1,11 +1,20 @@
-<p class="rptheader"><b>Application Log</b></p>
+<div style="background-color: #efefef;  width: auto">
+  <p class="rptheader mat-dialog-title"><b>Application Log: {{data.reason}}</b></p>
+</div>
+<div mat-dialog-content>
+  <div>
+    <table  spacing="0">
+      <tbody>
+        <tr>
+          <td>
+            <div class="applog">
+              {{data.description}}
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
-<table class='table' spacing="0">
-  <tbody>
-    <tr>
-      <td>
-        {{data.description}}
-      </td>
-    </tr>
-  </tbody>
-</table>
+</div>
+

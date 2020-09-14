@@ -80,21 +80,19 @@ namespace ICBC.Web.Controllers
         public IActionResult GetLogFile(string fileName)
         {
             System.Text.StringBuilder reportFiles = new System.Text.StringBuilder();
-            _logger.LogInfo($"GetLogs");
+            _logger.LogInfo($"GetLogFile: {fileName}");
             try
             {
                 string logFolder = System.IO.Path.GetFullPath(ExcelConstants.LogFolderName + "\\" + fileName);
                 if (System.IO.File.Exists(logFolder))
                 {
-                    
-                    _logger.LogInfo($"GetLogs: Directory not found creating directory Path: {logFolder}");
                     return Ok(new { LogFiles = System.IO.File.ReadAllText(logFolder) });
                 }
                 return Ok(new { LogFiles = "No file found." });
             }
             catch (Exception ex)
             {
-                _logger.LogInfo($"GetLogs: {ex.ToString()}");
+                _logger.LogInfo($"GetLogFile: {ex.ToString()}");
             }
 
             return Ok(new { LogFiles = "NO_Log_FOUND" });
@@ -111,7 +109,7 @@ namespace ICBC.Web.Controllers
                 string logFolder = System.IO.Path.GetFullPath(ExcelConstants.LogFolderName);
                 if (!System.IO.Directory.Exists(logFolder))
                 {
-                    _logger.LogInfo($"GetLogs: Directory not found creating directory Path: {logFolder}");
+                    _logger.LogInfo($"GetLogs: Directory not found creating directory logFolder Path: {logFolder}");
                     System.IO.Directory.CreateDirectory(logFolder);
                 }
                 string[] filePaths = System.IO.Directory.GetFiles(logFolder);
