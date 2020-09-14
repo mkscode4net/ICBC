@@ -12,7 +12,8 @@ import { LogsComponent } from './logs/logs.component';
 import { XmlDataUploadComponent } from './xml-data-upload/xml-data-upload.component';
 import { ExcelTemplateComponent } from './excel-template/excel-template.component';
 import { ReportViewerComponent } from './report-viewer/report-viewer.component';
-import {AppSettings } from './settings/appSettings'
+import {AppSettings } from './settings/appSettings';
+import { ErrorDialogComponent } from './error-dialog/error-dialog.component'
 
 @NgModule({
   declarations: [
@@ -24,6 +25,7 @@ import {AppSettings } from './settings/appSettings'
     XmlDataUploadComponent,
     ExcelTemplateComponent,
     ReportViewerComponent,
+    ErrorDialogComponent,
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
